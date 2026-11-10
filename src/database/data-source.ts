@@ -1,0 +1,52 @@
+import 'reflect-metadata';
+import { config as loadEnv } from 'dotenv';
+import { DataSource } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { RefreshToken } from '../modules/auth/entities/refresh-token.entity';
+import { Contact } from '../modules/contacts/entities/contact.entity';
+import { Settings } from '../modules/settings/entities/settings.entity';
+import { Transaction } from '../modules/transactions/entities/transaction.entity';
+import { User } from '../modules/users/entities/user.entity';
+import { Wagon } from '../modules/wagons/entities/wagon.entity';
+import { InitialSchema1755000000000 } from '../migrations/1755000000000-InitialSchema';
+import { TransactionAffectsBalance1755100000000 } from '../migrations/1755100000000-TransactionAffectsBalance';
+import { TransactionSource1758000000000 } from '../migrations/1758000000000-TransactionSource';
+import { WagonCustomsExpense1759000000000 } from '../migrations/1759000000000-WagonCustomsExpense';
+import { KassaAsPocket1760000000000 } from '../migrations/1760000000000-KassaAsPocket';
+import { WagonLocation1761000000000 } from '../migrations/1761000000000-WagonLocation';
+import { WagonArchivedAt1762000000000 } from '../migrations/1762000000000-WagonArchivedAt';
+import { WagonLocationDates1763000000000 } from '../migrations/1763000000000-WagonLocationDates';
+import { WagonCustomsCash1764000000000 } from '../migrations/1764000000000-WagonCustomsCash';
+
+loadEnv();
+
+export const entities = [User, RefreshToken, Contact, Wagon, Transaction, Settings];
+export const migrations = [
+  InitialSchema1755000000000,
+  TransactionAffectsBalance1755100000000,
+  TransactionSource1758000000000,
+  WagonCustomsExpense1759000000000,
+  KassaAsPocket1760000000000,
+  WagonLocation1761000000000,
+  WagonArchivedAt1762000000000,
+  WagonLocationDates1763000000000,
+  WagonCustomsCash1764000000000,
+];
+
+export function buildDataSourceOptions(): PostgresConnectionOptions {
+  return {
+    type: 'postgres',
+    host: process.env.DB_HOST ?? 'localhost',
+    port: parseInt(process.env.DB_PORT ?? '5432', 10),
+    username: process.env.DB_USER ?? 'hesab',
+    password: process.env.DB_PASSWORD ?? '',
+    database: process.env.DB_NAME ?? 'hesab_kitab',
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    entities,
+    migrations,
+    synchronize: false,
+    logging: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  };
+}
+
+export default new DataSource(buildDataSourceOptions());
